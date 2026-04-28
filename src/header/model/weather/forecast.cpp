@@ -1,4 +1,5 @@
-#include "header/model/weather/forecast.hpp"
+
+#include "header/model/weather/forecast/forecast.hpp"
 
 #include <optional>
 #include <string>

@@ -1,8 +1,6 @@
 #include <chrono>
-#include <cstdint>
 #include <date/date.h>
 #include <date/tz.h>
-#include <httplib.h>
 #include <sstream>
 #include <stdexcept>
 #include <variant>
@@ -15,20 +13,15 @@
 
 template <>
 struct fmt::formatter<date::zoned_seconds> {
-    constexpr auto parse(format_parse_context& ctx) {
+    static constexpr auto parse(const fmt::format_parse_context& ctx) {
         return ctx.begin();
     }
 
-    template <typename FormatContext>
-    auto format(const date::zoned_seconds& zt, FormatContext& ctx) const {
+    static auto format(const date::zoned_seconds& zt, const fmt::format_context& ctx) {
         return fmt::format_to(ctx.out(), "{}", date::format(ServiceConstants::Pattern::Default::DateTime, zt));
     }
 };
 
-/**
- * Use OpenWeatherAPI on a given city
- * @param city Get weather for the city
- */
 void getWeatherForCity(std::string_view city) {
     OpenWeather openWeather;
     if (const auto res = openWeather.getForCity(city); const auto error = std::get_if<weather::WeatherError>(&res)) {
@@ -56,11 +49,11 @@ date::zoned_seconds getISTDatetimeFromGMTString(const std::string& gmtDate) {
         throw std::invalid_argument("Failed to parse string date: " + gmtDate);
     }
 
-    return date::zoned_time{"Asia/Kolkata", gmtTP};
+    return date::make_zoned("Asia/Kolkata", gmtTP);
 }
 
 date::zoned_seconds getISTDatetimeFromUnix(int64_t epoch) {
-    auto tp = date::sys_seconds{std::chrono::seconds{epoch}};
+    const auto tp = date::sys_seconds{std::chrono::seconds{epoch}};
     return date::make_zoned("Asia/Kolkata", tp);
 }
 
@@ -72,7 +65,7 @@ void processForecast(const std::vector<forecast::List>& list, const forecast::Ci
         date::format(ServiceConstants::Pattern::Indian::Time, getISTDatetimeFromUnix(city.sunrise)),
         date::format(ServiceConstants::Pattern::Indian::Time, getISTDatetimeFromUnix(city.sunset)));
 
-    PRINT_INFO("Weather forecast on given datetimes:");
+    PRINT_INFO("Weather forecast on given datetime:");
     PRINT_INFO("| {:^10} | {:^11} | {:^5} | {:^5} | {:^5} | {:^3} | {:^10} | {:^20} |", "Date", "Time", "Min", "Max",
         "Feels", "Hum", "Condition", "Description");
     PRINT_INFO(
@@ -80,8 +73,6 @@ void processForecast(const std::vector<forecast::List>& list, const forecast::Ci
     for (const auto& pred : list) {
         try {
             auto istTime = getISTDatetimeFromGMTString(pred.dtTxt);
-
-
             PRINT_INFO("| {:<10} | {:<11} | {:>5.2f} | {:>5.2f} | {:>5.2f} | {:<3} | {:^10} | {:^20} |",
                 date::format(ServiceConstants::Pattern::Default::Date, istTime), // Date
                 date::format(ServiceConstants::Pattern::Indian::Time, istTime), // Time
@@ -105,13 +96,27 @@ void getForecastForCity(std::string_view city) {
         LOG_ERROR("city: {}, status code: {}, Message: {}", city, error->cod, error->message);
         PRINT_ERROR("city: {}, status code: {}, Message: {}", city, error->cod, error->message);
     } else {
-        auto forecastResponse = std::get<forecast::WeatherForecast>(res);
+        const auto forecastResponse = std::get<forecast::WeatherForecast>(res);
         processForecast(forecastResponse.list, forecastResponse.city);
     }
 }
 
+void setTimeZoneDB() {
+#if WIN32
+    const std::filesystem::path path = "resources/tzdata";
+    date::set_install(path.string());
+    try {
+        date::get_tzdb();
+    } catch (const std::runtime_error& ex) {
+        LOG_FATAL("Error loading bundled TZDB: {}", ex.what());
+        std::terminate();
+    }
+#endif
+}
+
 int main() {
     LOG_INIT();
+    setTimeZoneDB();
     checkSizeAndAlignmentOfDate();
     dateCurrentAge();
 

@@ -7,7 +7,7 @@ set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 
 add_executable(HttpLibTesting main.cpp
         include/header/model/weather/weather.hpp
-        include/header/model/weather/forecast.hpp
+        include/header/model/weather/forecast/forecast.hpp
         include/header/model/weather/error.hpp
         include/header/constants/constants.hpp
         src/header/open_weather/open_weather.cpp
@@ -26,7 +26,27 @@ add_executable(HttpLibTesting main.cpp
         src/lib/random/random.cpp
         include/header/date/dob.hpp
         src/header/date/dob.cpp
+        include/header/model/weather/forecast/enum.hpp
+        include/header/model/weather/forecast/fmt.hpp
 )
+
+target_compile_definitions(HttpLibTesting PRIVATE $<$<CONFIG:Debug>:PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}">)
+set(RESOURCE_DIR "${CMAKE_SOURCE_DIR}/resources")
+message(STATUS "absolute path of resources folder: ${RESOURCE_DIR}")
+
+if (EXISTS "${RESOURCE_DIR}")
+    file(GLOB_RECURSE RESOURCES_FILES "${CMAKE_SOURCE_DIR}/resources/*")
+    add_custom_command(
+            OUTPUT "${CMAKE_BINARY_DIR}/resources_copy_stamp"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources" "$<TARGET_FILE_DIR:HttpLibTesting>/resources"
+            COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_BINARY_DIR}/resources_copy_stamp"
+            DEPENDS ${RESOURCES_FILES}
+            COMMENT "Copying resources to output directory"
+    )
+
+    add_custom_target(copy_resource_files DEPENDS "${CMAKE_BINARY_DIR}/resources_copy_stamp")
+    add_dependencies(HttpLibTesting copy_resource_files)
+endif ()
 
 set(CPM_DOWNLOAD_VERSION 0.42.1)
 
@@ -74,7 +94,7 @@ CPMAddPackage(
         "SPDLOG_FMT_EXTERNAL ON"   # Tells spdlog to find and use your 'fmt' package
         "SPDLOG_BUILD_TESTS OFF"   # Disables internal spdlog tests
         "SPDLOG_BUILD_EXAMPLE OFF" # Skips spdlog's example folder
-        "SPDLOG_BUILD_BENCH OFF" 
+        "SPDLOG_BUILD_BENCH OFF"
         "BUILD_SHARED_LIBS OFF"
 )
 
@@ -92,14 +112,14 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
-    NAME date
-    VERSION 3.0.4
-    URL "https://github.com/HowardHinnant/date/archive/refs/tags/v3.0.4.tar.gz"
-    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-    OPTIONS
-    "ENABLE_DATE_TESTING OFF"
-    "BUILD_TZ_LIB ON"
-    "USE_SYSTEM_TZ_DB ON" 
+        NAME date
+        VERSION 3.0.4
+        URL "https://github.com/HowardHinnant/date/archive/refs/tags/v3.0.4.tar.gz"
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+        OPTIONS
+        "ENABLE_DATE_TESTING OFF"
+        "USE_SYSTEM_TZ_DB ON"
+        "BUILD_TZ_LIB ON"
 )
 
 find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
