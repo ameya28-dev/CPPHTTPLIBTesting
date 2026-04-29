@@ -103,7 +103,7 @@ void getForecastForCity(std::string_view city) {
 
 void setTimeZoneDB() {
 #if WIN32
-    const std::filesystem::path path = "resources/tzdata";
+    const std::filesystem::path path = ServiceConstants::Resources::TZDataPath;
     date::set_install(path.string());
     try {
         date::get_tzdb();
@@ -118,7 +118,7 @@ int main() {
     LOG_INIT();
     setTimeZoneDB();
     checkSizeAndAlignmentOfDate();
-    dateCurrentAge();
+    getCurrentAge();
 
     getWeatherForCity(ServiceConstants::Weather::Hubli);
     getWeatherForCity("ServiceConstants::Weather::Hubli");

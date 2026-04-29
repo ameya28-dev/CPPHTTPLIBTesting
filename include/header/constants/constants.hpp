@@ -31,6 +31,10 @@ namespace ServiceConstants {
             static constexpr auto Time = "%I:%M:%S %p";
         };
     };
+
+    struct Resources {
+        static constexpr auto TZDataPath = "resources/tzdata";
+    };
 } // namespace ServiceConstants
 
 #endif // HTTPLIBTESTING_HEADER_CONSTANTS_HPP

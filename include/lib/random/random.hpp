@@ -17,7 +17,7 @@ public:
 
     template <size_t S>
     std::array<int, S> getArray() {
-        std::array<int, S> res;
+        std::array<int, S> res {};
         for (int i = 0; i < S; i++) {
             res[i] = _distribution(_gen);
         }
@@ -43,7 +43,7 @@ public:
 
     template <size_t S>
     std::array<double, S> getArray() {
-        std::array<double, S> res;
+        std::array<double, S> res {};
         for (int i = 0; i < S; i++) {
             res[i] = _distribution(_gen);
         }
@@ -67,7 +67,7 @@ public:
 
     template <size_t S>
     std::array<double, S> getArray() {
-        std::array<double, S> res;
+        std::array<double, S> res{};
         for (int i = 0; i < S; i++) {
             res[i] = _distribution(_gen);
         }
@@ -78,6 +78,5 @@ private:
     std::mt19937 _gen;
     std::normal_distribution<> _distribution;
 };
-
 
 #endif // HTTPLIBTESTING_RANDOM_HPP

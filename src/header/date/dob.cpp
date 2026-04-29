@@ -1,5 +1,8 @@
 #include "header/date/dob.hpp"
 
+#include "date/date.h"
+#include <chrono>
+
 #if !NDEBUG
 #include <iostream>
 #include <type_traits>
@@ -9,18 +12,28 @@
 
 #include "lib/logger/manager/manager.hpp"
 
-Person::Person(const char* name, const int year, const int month, const int day) : name(name) {
-    dateOfBirth = date::year{year} / static_cast<date::month>(month) / day;
-    if (!dateOfBirth.ok()) {
+date::year_month_day Person::ConstructValidDate(const int year, const int month, const int day) {
+    auto date = date::year{year} / static_cast<date::month>(month) / day;
+    if (!date.ok()) {
         throw std::invalid_argument("Invalid arguments resulting in non existent date creation!!!");
     }
+    return date;
 }
+
+Person::Person(const char* name, const int year, const int month, const int day)
+    : name(name), dateOfBirth(ConstructValidDate(year, month, day)) {}
 
 int Person::getAge() const {
     const auto startSys = date::sys_days{dateOfBirth};
     const auto endSys   = date::sys_days{date::floor<date::days>(std::chrono::system_clock::now())};
     const auto duration = endSys - startSys;
     return duration.count() / NoOfDaysInAYear;
+}
+
+int Person::getAgeInDays() const {
+    const auto startSys = date::sys_days{dateOfBirth};
+    const auto endSys   = date::sys_days{date::floor<date::days>(std::chrono::system_clock::now())};
+    return (endSys - startSys).count();
 }
 
 void checkSizeAndAlignmentOfDate() {
@@ -30,7 +43,13 @@ void checkSizeAndAlignmentOfDate() {
 #endif
 }
 
-void dateCurrentAge() {
-    Person person{"James Dean", 2000, 2, 27};
-    PRINT_INFO("{} is {} years old", person.name, person.getAge());
+void getCurrentAge() {
+    try {
+        Person montgomery{"Montgomery Clift", 1920, 10, 17};
+        PRINT_INFO("{} is {} days old", montgomery.name, montgomery.getAgeInDays());
+        Person james{"James Dean", 1931, 2, 29};
+        PRINT_INFO("{} is {} years old", james.name, james.getAge());
+    } catch (const std::invalid_argument& ex) {
+        LOG_FATAL("Person could not be created!!: {}", ex.what());
+    }
 }

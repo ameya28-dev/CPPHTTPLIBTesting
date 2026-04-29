@@ -13,15 +13,19 @@ static constexpr int NoOfDaysInAYear = 365;
 
 struct Person {
     std::string name;
-    date::year_month_day dateOfBirth{};
+    date::year_month_day dateOfBirth;
 
     explicit Person(const char*, int, int, int);
 
+    static date::year_month_day ConstructValidDate(int, int, int);
+
     [[nodiscard]] int getAge() const;
+
+    [[nodiscard]] int getAgeInDays() const ;
 };
 
 void checkSizeAndAlignmentOfDate();
 
-void dateCurrentAge();
+void getCurrentAge();
 
 #endif
