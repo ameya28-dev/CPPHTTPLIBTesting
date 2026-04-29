@@ -13,7 +13,7 @@ add_executable(HttpLibTesting main.cpp
         src/header/open_weather/open_weather.cpp
         include/header/open_weather/open_weather.hpp
         src/header/model/weather/weather.cpp
-        src/header/model/weather/forecast.cpp
+        src/header/model/weather/forecast/forecast.cpp
         include/lib/logger/manager/manager.hpp
         src/lib/logger/manager/manager.cpp
         include/lib/http/base_client/base_client.hpp
@@ -33,7 +33,6 @@ add_executable(HttpLibTesting main.cpp
 target_compile_definitions(HttpLibTesting PRIVATE $<$<CONFIG:Debug>:PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}">)
 set(RESOURCE_DIR "${CMAKE_SOURCE_DIR}/resources")
 message(STATUS "absolute path of resources folder: ${RESOURCE_DIR}")
-
 if (EXISTS "${RESOURCE_DIR}")
     file(GLOB_RECURSE RESOURCES_FILES "${CMAKE_SOURCE_DIR}/resources/*")
     add_custom_command(
@@ -43,7 +42,6 @@ if (EXISTS "${RESOURCE_DIR}")
             DEPENDS ${RESOURCES_FILES}
             COMMENT "Copying resources to output directory"
     )
-
     add_custom_target(copy_resource_files DEPENDS "${CMAKE_BINARY_DIR}/resources_copy_stamp")
     add_dependencies(HttpLibTesting copy_resource_files)
 endif ()
@@ -142,12 +140,12 @@ if (WIN32)
     # Required for Windows Networking, Timers, and OpenSSL Certificate handling
     target_link_libraries(HttpLibTesting PRIVATE ws2_32 winmm crypt32)
 
-    #     MSVC specific: OpenSSL applink is often required for correct memory management
+    # MSVC specific: OpenSSL applink is often required for correct memory management
     if (MSVC)
         target_link_libraries(HttpLibTesting PRIVATE OpenSSL::applink)
     endif ()
 elseif (APPLE)
-    #     Required for macOS system certificate access
+    # Required for macOS system certificate access
     target_link_libraries(HttpLibTesting PRIVATE "-framework CoreFoundation" "-framework Security")
     target_compile_definitions(HttpLibTesting PRIVATE CPPHTTPLIB_USE_CERTS_FROM_MACOSX_KEYCHAIN)
 endif ()

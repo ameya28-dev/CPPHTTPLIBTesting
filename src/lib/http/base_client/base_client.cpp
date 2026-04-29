@@ -2,8 +2,6 @@
 
 #include "lib/http/types/types.hpp"
 
-
-
 using namespace std::chrono_literals;
 
 BaseClient::BaseClient(const std::string& host) : _client(host), _gen(100, 900) {

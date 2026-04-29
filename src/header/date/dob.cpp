@@ -5,25 +5,22 @@
 #include <type_traits>
 #endif
 
+#include <stdexcept>
+
 #include "lib/logger/manager/manager.hpp"
 
-Person::Person(const char* name, int year, int month, int day) : name(name) {
+Person::Person(const char* name, const int year, const int month, const int day) : name(name) {
     dateOfBirth = date::year{year} / static_cast<date::month>(month) / day;
     if (!dateOfBirth.ok()) {
-        std::invalid_argument("Invalid arguments resulting in non existent date creation!!!");
+        throw std::invalid_argument("Invalid arguments resulting in non existent date creation!!!");
     }
 }
 
-int Person::getAge() {
-    // auto startSys = date::sys_days{dateOfBirth};
-    // auto endSys   = date::sys_days{date::floor<date::days>(std::chrono::system_clock::now())};
-    // auto duration = endSys - startSys;
-    // return static_cast<int>(duration.count() / 365);
-
-    auto startSys = date::sys_days{dateOfBirth};
-    auto endSys   = date::sys_days{date::floor<date::days>(std::chrono::system_clock::now())};
-    auto duration = endSys - startSys;
-    return static_cast<int>(duration.count() / NoOfDaysInAYear);
+int Person::getAge() const {
+    const auto startSys = date::sys_days{dateOfBirth};
+    const auto endSys   = date::sys_days{date::floor<date::days>(std::chrono::system_clock::now())};
+    const auto duration = endSys - startSys;
+    return duration.count() / NoOfDaysInAYear;
 }
 
 void checkSizeAndAlignmentOfDate() {

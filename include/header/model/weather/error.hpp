@@ -1,3 +1,6 @@
+#ifndef HTTPLIBTESTING_INCLUDE_HEADER_MODEL_WEATHER_ERROR_HPP
+#define HTTPLIBTESTING_INCLUDE_HEADER_MODEL_WEATHER_ERROR_HPP
+
 #include <fmt/format.h>
 #include <string>
 
@@ -22,3 +25,5 @@ struct fmt::formatter<weather::WeatherError> : formatter<std::string> {
         return format_to(context.out(), "WeatherError(cod: {}, message: {})", err.cod, err.message);
     }
 };
+
+#endif // HTTPLIBTESTING_INCLUDE_HEADER_MODEL_WEATHER_ERROR_HPP

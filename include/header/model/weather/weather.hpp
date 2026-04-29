@@ -5,7 +5,7 @@
 #include <fmt/ranges.h>
 #include <fmt/std.h>
 
-#include "header/serialization/optional_json.hpp"
+#include "header/serialization/optional.hpp"
 #include <nlohmann/json.hpp>
 
 namespace weather {

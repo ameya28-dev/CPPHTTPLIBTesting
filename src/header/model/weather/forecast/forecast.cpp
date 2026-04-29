@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 
-#include "header/serialization/optional_json.hpp"
+#include "header/serialization/optional.hpp"
 
 namespace forecast {
     void from_json(const nlohmann::json& j, MainClass& main) {

@@ -70,18 +70,18 @@ void processForecast(const std::vector<forecast::List>& list, const forecast::Ci
         "Feels", "Hum", "Condition", "Description");
     PRINT_INFO(
         "+{:-<11}-+-{:-<11}-+-{:-<5}-+-{:-<5}-+-{:-<5}-+-{:-<3}-+-{:-<10}-+-{:-<21}+", "", "", "", "", "", "", "", "");
-    for (const auto& pred : list) {
+    for (const auto& item : list) {
         try {
-            auto istTime = getISTDatetimeFromGMTString(pred.dtTxt);
+            auto istTime = getISTDatetimeFromGMTString(item.dtTxt);
             PRINT_INFO("| {:<10} | {:<11} | {:>5.2f} | {:>5.2f} | {:>5.2f} | {:<3} | {:^10} | {:^20} |",
                 date::format(ServiceConstants::Pattern::Default::Date, istTime), // Date
                 date::format(ServiceConstants::Pattern::Indian::Time, istTime), // Time
-                pred.main.tempMin, // Min Temp
-                pred.main.tempMax, // Max Temp
-                pred.main.feelsLike, // Feels Like
-                pred.main.humidity, // Humidity
-                forecast::getMainEnumDesc(pred.weather[0].main), // Condition
-                forecast::getDescriptionEnumDesc(pred.weather[0].description) // Description
+                item.main.tempMin, // Min Temp
+                item.main.tempMax, // Max Temp
+                item.main.feelsLike, // Feels Like
+                item.main.humidity, // Humidity
+                forecast::getMainEnumDesc(item.weather[0].main), // Condition
+                forecast::getDescriptionEnumDesc(item.weather[0].description) // Description
             );
         } catch (...) {
             continue;
@@ -108,7 +108,7 @@ void setTimeZoneDB() {
     try {
         date::get_tzdb();
     } catch (const std::runtime_error& ex) {
-        LOG_FATAL("Error loading bundled TZDB: {}", ex.what());
+        LOG_FATAL("Error loading bundled Time Zone Database: {}", ex.what());
         std::terminate();
     }
 #endif

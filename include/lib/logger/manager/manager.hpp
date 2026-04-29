@@ -5,7 +5,6 @@
 #include <spdlog/logger.h>
 #include <string_view>
 
-
 #define LOG_INIT() LogManager::Init()
 
 #ifndef NDEBUG
